@@ -73,7 +73,7 @@ export function Navbar() {
             <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-lg shadow-primary-600/20 group-hover:shadow-primary-600/40 transition-shadow">
               <FileText className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold gradient-text">PDF Tools</span>
+            <span className="text-xl font-bold gradient-text">SwaPDF</span>
           </Link>
 
           {/* Desktop Navigation */}

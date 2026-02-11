@@ -4,7 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "PDF Tools - Votre boîte à outils PDF complète",
+  title: "SwaPDF - Votre boîte à outils PDF complète",
   description:
     "Remplissez, convertissez, signez et éditez vos PDF en ligne gratuitement. Conversion PDF vers image et image vers PDF.",
 };

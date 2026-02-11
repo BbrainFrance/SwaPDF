@@ -105,7 +105,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900">
-              Pourquoi choisir PDF Tools ?
+              Pourquoi choisir SwaPDF ?
             </h2>
             <p className="mt-4 text-lg text-gray-500">
               Des outils pensés pour la simplicité et la confidentialité
