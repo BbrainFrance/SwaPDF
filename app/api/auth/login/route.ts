@@ -34,10 +34,11 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       email: user.email,
       name: user.name,
+      plan: user.plan,
     });
 
     const response = NextResponse.json({
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, plan: user.plan },
       message: "Connexion réussie",
     });
 

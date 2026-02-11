@@ -26,6 +26,7 @@ import {
   Type,
   Stamp,
   Image as ImageIcon,
+  Crown,
 } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
@@ -140,6 +141,10 @@ export default function SignPdfPage() {
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("new");
   const [creationMode, setCreationMode] = useState<CreationMode>("draw");
 
+  // ── Plan & usage ──────────────────────────────────────────────────────────
+  const [userPlan, setUserPlan] = useState<string>("free");
+  const [canUseTimestamp, setCanUseTimestamp] = useState(false);
+
   // ── Text signature state ─────────────────────────────────────────────────
   const [sigText, setSigText] = useState("");
   const [sigFont, setSigFont] = useState(HANDWRITING_FONTS[0].family);
@@ -167,6 +172,15 @@ export default function SignPdfPage() {
 
   useEffect(() => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+
+    // Fetch usage/plan info
+    fetch("/api/usage")
+      .then((res) => res.json())
+      .then((data) => {
+        setUserPlan(data.plan || "free");
+        setCanUseTimestamp(data.canUseTimestamp || false);
+      })
+      .catch(() => {});
   }, []);
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -273,16 +287,19 @@ export default function SignPdfPage() {
       const xPercent = clickX / rect.width;
       const yPercent = clickY / rect.height;
 
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      const hh = String(now.getHours()).padStart(2, "0");
-      const mi = String(now.getMinutes()).padStart(2, "0");
-      const ss = String(now.getSeconds()).padStart(2, "0");
-      const timestamp = placingType === "signature"
-        ? `Signé le ${dd}/${mm}/${yyyy} à ${hh}:${mi}:${ss}`
-        : `Certifié le ${dd}/${mm}/${yyyy} à ${hh}:${mi}:${ss}`;
+      let timestamp = "";
+      if (canUseTimestamp) {
+        const now = new Date();
+        const dd = String(now.getDate()).padStart(2, "0");
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const yyyy = now.getFullYear();
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mi = String(now.getMinutes()).padStart(2, "0");
+        const ss = String(now.getSeconds()).padStart(2, "0");
+        timestamp = placingType === "signature"
+          ? `Signé le ${dd}/${mm}/${yyyy} à ${hh}:${mi}:${ss}`
+          : `Certifié le ${dd}/${mm}/${yyyy} à ${hh}:${mi}:${ss}`;
+      }
 
       const newItem: PlacedItem = {
         id: crypto.randomUUID(),
@@ -300,7 +317,7 @@ export default function SignPdfPage() {
       setIsPlacingMode(false);
       setSidebarTab("placed");
     },
-    [isPlacingMode, activeDataUrl, currentPage, isDragging, isResizing, placingType]
+    [isPlacingMode, activeDataUrl, currentPage, isDragging, isResizing, placingType, canUseTimestamp]
   );
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -532,15 +549,17 @@ export default function SignPdfPage() {
             height: itemHeight,
           });
 
-          // Timestamp below
-          const fontSize = Math.max(7, Math.min(itemWidth * 0.055, 12));
-          page.drawText(item.timestamp, {
-            x,
-            y: y - fontSize - 3,
-            size: fontSize,
-            font: helveticaFont,
-            color: rgb(0.35, 0.35, 0.35),
-          });
+          // Timestamp below (Pro only)
+          if (item.timestamp) {
+            const fontSize = Math.max(7, Math.min(itemWidth * 0.055, 12));
+            page.drawText(item.timestamp, {
+              x,
+              y: y - fontSize - 3,
+              size: fontSize,
+              font: helveticaFont,
+              color: rgb(0.35, 0.35, 0.35),
+            });
+          }
         }
       }
 
@@ -859,16 +878,18 @@ export default function SignPdfPage() {
                             />
                           </div>
 
-                          <div
-                            className="text-center whitespace-nowrap overflow-hidden pointer-events-none px-1 pb-0.5"
-                            style={{
-                              fontSize: "clamp(6px, 0.65vw, 10px)",
-                              color: "#4b5563",
-                              lineHeight: "1.4",
-                            }}
-                          >
-                            {item.timestamp}
-                          </div>
+                          {item.timestamp && (
+                            <div
+                              className="text-center whitespace-nowrap overflow-hidden pointer-events-none px-1 pb-0.5"
+                              style={{
+                                fontSize: "clamp(6px, 0.65vw, 10px)",
+                                color: "#4b5563",
+                                lineHeight: "1.4",
+                              }}
+                            >
+                              {item.timestamp}
+                            </div>
+                          )}
 
                           <div
                             className={`absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center text-white shadow-md transition-opacity ${
@@ -954,6 +975,21 @@ export default function SignPdfPage() {
                     {/* ── TAB: Créer ─────────────────────────────────────── */}
                     {sidebarTab === "new" && (
                       <div className="space-y-4 animate-fade-in">
+                        {/* Timestamp Pro badge */}
+                        {!canUseTimestamp && (
+                          <div className="flex items-center space-x-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-xs text-amber-700">
+                            <Crown className="w-4 h-4 flex-shrink-0" />
+                            <span>
+                              <a href="/pricing" className="font-semibold underline">Plan Pro</a> requis pour la signature horodatée.
+                            </span>
+                          </div>
+                        )}
+                        {canUseTimestamp && (
+                          <div className="flex items-center space-x-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 text-xs text-emerald-700">
+                            <Clock className="w-4 h-4 flex-shrink-0" />
+                            <span>Horodatage certifié activé avec votre plan <strong className="capitalize">{userPlan}</strong>.</span>
+                          </div>
+                        )}
                         {/* Creation mode selector */}
                         <div className="grid grid-cols-4 gap-1.5">
                           <button
@@ -1519,10 +1555,17 @@ export default function SignPdfPage() {
                                     />
                                   </div>
 
-                                  <div className="flex items-center space-x-1.5 text-[10px] text-gray-500">
-                                    <Clock className="w-3 h-3 flex-shrink-0" />
-                                    <span>{item.timestamp}</span>
-                                  </div>
+                                  {item.timestamp ? (
+                                    <div className="flex items-center space-x-1.5 text-[10px] text-gray-500">
+                                      <Clock className="w-3 h-3 flex-shrink-0" />
+                                      <span>{item.timestamp}</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center space-x-1.5 text-[10px] text-amber-600">
+                                      <Crown className="w-3 h-3 flex-shrink-0" />
+                                      <span>Horodatage Pro uniquement</span>
+                                    </div>
+                                  )}
 
                                   {selectedPlacedId === item.id && (
                                     <div className="mt-3 pt-3 border-t border-gray-200/60 animate-fade-in">

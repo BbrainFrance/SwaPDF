@@ -1,11 +1,23 @@
-import { FileText, Image, PenTool, Shield, Zap, Lock, FileOutput } from "lucide-react";
+import Link from "next/link";
+import {
+  FileText,
+  Image,
+  PenTool,
+  Shield,
+  Zap,
+  Lock,
+  FileOutput,
+  Archive,
+  Crown,
+  ArrowRight,
+} from "lucide-react";
 import { ToolCard } from "@/components/tool-card";
 
 const tools = [
   {
     title: "Remplir PDF",
     description:
-      "Remplissez les champs de vos formulaires PDF directement dans votre navigateur. Sélectionnez les champs et saisissez vos informations.",
+      "Remplissez les champs de vos formulaires PDF directement dans votre navigateur.",
     href: "/pdf-fill",
     icon: FileText,
     color: "text-blue-600",
@@ -14,7 +26,7 @@ const tools = [
   {
     title: "PDF vers Image",
     description:
-      "Convertissez vos fichiers PDF en images JPG ou PNG de haute qualité. Chaque page devient une image individuelle.",
+      "Convertissez vos fichiers PDF en images JPG ou PNG de haute qualité.",
     href: "/pdf-to-image",
     icon: Image,
     color: "text-green-600",
@@ -23,16 +35,25 @@ const tools = [
   {
     title: "Image vers PDF",
     description:
-      "Transformez vos images JPG, PNG et autres en un document PDF unique. Organisez l'ordre des pages facilement.",
+      "Transformez vos images JPG, PNG et autres en un document PDF unique.",
     href: "/image-to-pdf",
     icon: FileOutput,
     color: "text-purple-600",
     bgColor: "bg-purple-50",
   },
   {
+    title: "Compresser PDF",
+    description:
+      "Réduisez la taille de vos fichiers PDF sans perte visible de qualité.",
+    href: "/compress-pdf",
+    icon: Archive,
+    color: "text-red-600",
+    bgColor: "bg-red-50",
+  },
+  {
     title: "Signer PDF",
     description:
-      "Apposez votre signature numérique avec horodatage. Sauvegardez vos signatures pour les réutiliser.",
+      "Signature manuscrite, texte, image ou tampon avec horodatage certifié.",
     href: "/sign-pdf",
     icon: PenTool,
     color: "text-orange-600",
@@ -57,7 +78,7 @@ const features = [
     icon: Shield,
     title: "Gratuit",
     description:
-      "Tous les outils sont gratuits et sans limite. Créez un compte pour sauvegarder vos signatures.",
+      "2 documents par jour gratuitement. Passez au Pro pour un usage illimité.",
   },
 ];
 
@@ -74,7 +95,7 @@ export default function Home() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center space-x-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-full text-sm font-medium mb-8">
               <Zap className="w-4 h-4" />
-              <span>100% gratuit et sécurisé</span>
+              <span>Gratuit - 2 documents / jour</span>
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-gray-900 leading-tight tracking-tight">
@@ -84,16 +105,33 @@ export default function Home() {
             </h1>
 
             <p className="mt-6 text-xl text-gray-500 leading-relaxed max-w-2xl mx-auto">
-              Remplissez, convertissez, signez et éditez vos documents PDF
-              directement dans votre navigateur. Simple, rapide et sécurisé.
+              Remplissez, convertissez, compressez, signez et éditez vos
+              documents PDF directement dans votre navigateur.
             </p>
+
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/login"
+                className="btn-primary flex items-center space-x-2"
+              >
+                <span>Commencer gratuitement</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/pricing"
+                className="btn-secondary flex items-center space-x-2"
+              >
+                <Crown className="w-4 h-4 text-amber-500" />
+                <span>Voir les tarifs</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Tools Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
           {tools.map((tool) => (
             <ToolCard key={tool.href} {...tool} />
           ))}
@@ -130,6 +168,27 @@ export default function Home() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* CTA Pricing */}
+      <section className="bg-gradient-to-r from-primary-600 to-accent-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Besoin de plus ?
+          </h2>
+          <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
+            Passez au plan Pro pour un accès illimité, la signature horodatée
+            certifiée et bien plus encore.
+          </p>
+          <Link
+            href="/pricing"
+            className="inline-flex items-center space-x-2 bg-white text-primary-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-50 transition-colors shadow-xl"
+          >
+            <Crown className="w-5 h-5 text-amber-500" />
+            <span>Découvrir les tarifs</span>
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </section>
     </div>

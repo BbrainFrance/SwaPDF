@@ -13,6 +13,9 @@ import {
   LogOut,
   User,
   FileOutput,
+  Archive,
+  Crown,
+  LayoutDashboard,
 } from "lucide-react";
 
 const tools = [
@@ -35,6 +38,12 @@ const tools = [
     color: "text-purple-600",
   },
   {
+    name: "Compresser",
+    href: "/compress-pdf",
+    icon: Archive,
+    color: "text-red-600",
+  },
+  {
     name: "Signer PDF",
     href: "/sign-pdf",
     icon: PenTool,
@@ -45,9 +54,11 @@ const tools = [
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<{ name: string; email: string } | null>(
-    null
-  );
+  const [user, setUser] = useState<{
+    name: string;
+    email: string;
+    plan?: string;
+  } | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -77,7 +88,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center space-x-0.5">
             {tools.map((tool) => {
               const Icon = tool.icon;
               const isActive = pathname === tool.href;
@@ -85,7 +96,7 @@ export function Navbar() {
                 <Link
                   key={tool.href}
                   href={tool.href}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? "bg-primary-50 text-primary-700"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -96,21 +107,43 @@ export function Navbar() {
                 </Link>
               );
             })}
+            <Link
+              href="/pricing"
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                pathname === "/pricing"
+                  ? "bg-amber-50 text-amber-700"
+                  : "text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+              }`}
+            >
+              <Crown className="w-4 h-4" />
+              <span>Tarifs</span>
+            </Link>
           </div>
 
           {/* User Menu */}
           <div className="hidden md:flex items-center space-x-3">
             {user ? (
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gray-100">
-                  <User className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {user.name}
-                  </span>
-                </div>
+              <div className="flex items-center space-x-2">
+                <Link
+                  href="/dashboard"
+                  className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-colors ${
+                    pathname === "/dashboard"
+                      ? "bg-primary-50 text-primary-700"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span className="text-sm font-medium">{user.name}</span>
+                  {user.plan && user.plan !== "free" && (
+                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">
+                      {user.plan}
+                    </span>
+                  )}
+                </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-1 text-sm text-gray-500 hover:text-red-600 transition-colors"
+                  className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  title="Déconnexion"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -128,7 +161,7 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -142,7 +175,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white animate-fade-in">
+        <div className="lg:hidden border-t border-gray-200 bg-white animate-fade-in">
           <div className="px-4 py-3 space-y-1">
             {tools.map((tool) => {
               const Icon = tool.icon;
@@ -163,15 +196,33 @@ export function Navbar() {
                 </Link>
               );
             })}
+            <Link
+              href="/pricing"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-amber-600 hover:bg-amber-50"
+            >
+              <Crown className="w-5 h-5" />
+              <span>Tarifs</span>
+            </Link>
             <div className="pt-3 border-t border-gray-100">
               {user ? (
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 w-full"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span>Déconnexion</span>
-                </button>
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-primary-600 hover:bg-primary-50"
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    <span>Tableau de bord</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 w-full"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>Déconnexion</span>
+                  </button>
+                </>
               ) : (
                 <Link
                   href="/login"

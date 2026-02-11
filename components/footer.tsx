@@ -12,13 +12,11 @@ export function Footer() {
               <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center">
                 <FileText className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold gradient-text">
-                SwaPDF
-              </span>
+              <span className="text-lg font-bold gradient-text">SwaPDF</span>
             </div>
             <p className="text-gray-500 text-sm max-w-md">
               Votre boîte à outils PDF complète. Remplissez, convertissez,
-              signez et éditez vos documents en toute simplicité.
+              compressez, signez et éditez vos documents en toute simplicité.
             </p>
           </div>
 
@@ -54,6 +52,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/compress-pdf"
+                  className="text-sm text-gray-500 hover:text-primary-600 transition-colors"
+                >
+                  Compresser PDF
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/sign-pdf"
                   className="text-sm text-gray-500 hover:text-primary-600 transition-colors"
                 >
@@ -63,12 +69,28 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Info */}
           <div>
             <h3 className="text-sm font-semibold text-gray-900 mb-3">
               Informations
             </h3>
             <ul className="space-y-2">
+              <li>
+                <Link
+                  href="/pricing"
+                  className="text-sm text-gray-500 hover:text-primary-600 transition-colors"
+                >
+                  Tarifs
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/login"
+                  className="text-sm text-gray-500 hover:text-primary-600 transition-colors"
+                >
+                  Connexion / Inscription
+                </Link>
+              </li>
               <li>
                 <span className="text-sm text-gray-500">
                   Traitement 100% local
@@ -78,9 +100,6 @@ export function Footer() {
                 <span className="text-sm text-gray-500">
                   Vos fichiers restent privés
                 </span>
-              </li>
-              <li>
-                <span className="text-sm text-gray-500">Gratuit</span>
               </li>
             </ul>
           </div>

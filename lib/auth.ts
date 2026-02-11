@@ -9,6 +9,7 @@ export interface JWTPayload {
   userId: string;
   email: string;
   name: string;
+  plan: string;
 }
 
 export async function createToken(payload: JWTPayload): Promise<string> {
