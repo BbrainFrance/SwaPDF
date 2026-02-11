@@ -76,18 +76,31 @@ const SIGNATURE_COLORS = [
   { name: "Rouge", value: "#991b1b" },
 ];
 
-// ─── Helper: render text to canvas dataURL ──────────────────────────────────
+// ─── Helper: render text to canvas dataURL (async to wait for font loading) ─
 
-function textToSignatureDataUrl(
+async function textToSignatureDataUrl(
   text: string,
   fontFamily: string,
   color: string,
   fontSize: number = 64
-): string {
+): Promise<string> {
+  // Extract the actual font name (e.g. 'Dancing Script' from "'Dancing Script', cursive")
+  const fontName = fontFamily.split(",")[0].replace(/'/g, "").trim();
+
+  // Force the browser to load the font before drawing on canvas
+  try {
+    await document.fonts.load(`${fontSize}px "${fontName}"`);
+    // Small extra delay to ensure rendering is ready
+    await new Promise((r) => setTimeout(r, 50));
+  } catch {
+    // If font loading fails, continue with whatever is available
+  }
+
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
 
-  ctx.font = `${fontSize}px ${fontFamily}`;
+  const fontSpec = `${fontSize}px ${fontFamily}`;
+  ctx.font = fontSpec;
   const metrics = ctx.measureText(text);
   const textWidth = metrics.width;
   const textHeight = fontSize * 1.4;
@@ -98,7 +111,7 @@ function textToSignatureDataUrl(
   // Transparent background
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.font = `${fontSize}px ${fontFamily}`;
+  ctx.font = fontSpec;
   ctx.fillStyle = color;
   ctx.textBaseline = "middle";
   ctx.fillText(text, 20, canvas.height / 2);
@@ -172,6 +185,12 @@ export default function SignPdfPage() {
 
   useEffect(() => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+
+    // Preload all handwriting fonts
+    HANDWRITING_FONTS.forEach((font) => {
+      const fontName = font.family.split(",")[0].replace(/'/g, "").trim();
+      document.fonts.load(`64px "${fontName}"`).catch(() => {});
+    });
 
     // Fetch usage/plan info
     fetch("/api/usage")
@@ -472,9 +491,20 @@ export default function SignPdfPage() {
   // Text signature preview
   // ═════════════════════════════════════════════════════════════════════════
 
-  const textSignaturePreview = useMemo(() => {
-    if (!sigText.trim()) return null;
-    return textToSignatureDataUrl(sigText, sigFont, sigColor, sigFontSize);
+  const [textSignaturePreview, setTextSignaturePreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!sigText.trim()) {
+      setTextSignaturePreview(null);
+      return;
+    }
+    let cancelled = false;
+    textToSignatureDataUrl(sigText, sigFont, sigColor, sigFontSize).then(
+      (dataUrl) => {
+        if (!cancelled) setTextSignaturePreview(dataUrl);
+      }
+    );
+    return () => { cancelled = true; };
   }, [sigText, sigFont, sigColor, sigFontSize]);
 
   // ═════════════════════════════════════════════════════════════════════════
