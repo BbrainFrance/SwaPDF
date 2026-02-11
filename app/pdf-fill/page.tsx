@@ -342,7 +342,7 @@ export default function PdfFillPage() {
       }
 
       const modifiedPdfBytes = await pdfDocument.save();
-      const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
+      const blob = new Blob([modifiedPdfBytes.buffer], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
 
       const link = document.createElement("a");

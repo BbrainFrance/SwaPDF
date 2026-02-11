@@ -452,7 +452,7 @@ export default function SignPdfPage() {
       }
 
       const pdfBytes = await pdfDocLib.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const blob = new Blob([pdfBytes.buffer], { type: "application/pdf" });
       const baseName = pdfFile.name.replace(/\.pdf$/i, "");
       saveAs(blob, `${baseName}_signe.pdf`);
     } catch (err) {
