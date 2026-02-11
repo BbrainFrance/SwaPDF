@@ -404,7 +404,9 @@ export default function SignPdfPage() {
         sigsByPage.set(sig.pageNumber, list);
       }
 
-      for (const [pageNum, sigs] of sigsByPage) {
+      const sigEntries = Array.from(sigsByPage.entries());
+      for (let si = 0; si < sigEntries.length; si++) {
+        const [pageNum, sigs] = sigEntries[si];
         const page = pages[pageNum - 1];
         if (!page) continue;
 
