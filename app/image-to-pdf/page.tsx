@@ -312,7 +312,7 @@ export default function ImageToPdfPage() {
       setConversionProgress(100);
 
       const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes.buffer], { type: "application/pdf" });
+      const blob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: "application/pdf" });
       setPdfBlob(blob);
 
       // Scroll to results
