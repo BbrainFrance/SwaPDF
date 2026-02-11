@@ -18,7 +18,7 @@ import {
   Layers,
   RotateCcw,
 } from "lucide-react";
-import { PDFDocument, PDFTextField, PDFCheckBox, PDFDropdown, rgb } from "pdf-lib";
+import { PDFDocument, PDFTextField, PDFCheckBox, PDFDropdown, PDFName, rgb } from "pdf-lib";
 import * as pdfjsLib from "pdfjs-dist";
 import { FileUpload } from "@/components/file-upload";
 import { Loading } from "@/components/loading";
@@ -134,11 +134,10 @@ export default function PdfFillPage() {
 
         // Try to find which page this field belongs to
         const pages = pdfDocument.getPages();
+        const annotsKey = PDFName.of("Annots");
         for (let i = 0; i < pages.length; i++) {
-          const annots = pages[i].node.lookup(
-            pages[i].node.get("Annots") as any
-          );
-          if (annots) {
+          const annotsRef = pages[i].node.get(annotsKey);
+          if (annotsRef) {
             page = i;
             break;
           }
