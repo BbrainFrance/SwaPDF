@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String
+  passwordHash String      @map("password_hash")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  signatures   Signature[]
+  documents    Document[]
+
+  @@map("users")
+}
+
+model Signature {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  name      String
+  data      String   @db.Text // Base64 encoded signature image
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("signatures")
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  filename     String
+  originalName String   @map("original_name")
+  type         String   // "pdf", "jpg", "png", etc.
+  action       String   // "fill", "convert", "sign"
+  size         Int
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
